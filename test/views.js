@@ -1743,7 +1743,13 @@ test("cleanup hit", 1, function() {
   var view = new View({ collection: collection });
   view.remove();
 
-  equal(collection._callbacks.reset, undefined, "Reset event does not exist");
+  // Latest backbone.
+  if (collection._callbacks.reset) {
+    equal(_.isArray(collection._callbacks.reset), true, "Reset event does not exist");
+  // Backbone 0.9.2
+  } else {
+    equal(collection._callbacks.reset, undefined, "Reset event does not exist");
+  }
 });
 
 asyncTest("Duplicate sub-views are removed when their parent view is rendered repeatedly", 1, function() {
