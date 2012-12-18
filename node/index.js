@@ -82,7 +82,7 @@ var $ = require("cheerio");
     // This is really the only way you will want to partially apply a view into
     // a layout.  Its entirely possible you'll want to do it differently, so
     // this method is available to change.
-    partial: function(root, name, el, append) {
+    partial: function(root, name, el, insert) {
       // If no selector is specified, assume the parent should be added to.
       var $root = name ? $(root).find(name) : $(root);
 
@@ -97,8 +97,18 @@ var $ = require("cheerio");
       // recognize identical nodes.
       el = $(el);
 
-      // Use the append method if append argument is true.
-      this[append ? "append" : "html"]($root, el);
+      // Use the insert method if insert argument is true
+      if (insert) {
+        // Maintain backwards compatability with v0.7.2 by first checking if a
+        // custom `append` method has been specified.
+        if (this.append !== Backbone.Layout.prototype.options.append) {
+          this.append($root, el);
+        } else {
+          this.insert($root, el);
+        }
+      } else {
+        this.html($root, el);
+      }
 
       // If successfully added, return true.
       return true;
