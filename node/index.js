@@ -58,7 +58,7 @@ var $ = require("cheerio");
     return this;
   };
 
-  Backbone.LayoutManager.configure({
+  Backbone.Layout.configure({
 
     manage: true,
 
@@ -132,4 +132,4 @@ var $ = require("cheerio");
 
 }).call(_.extend(global, { Backbone: Backbone, _: _ }));
 
-module.exports = Backbone.LayoutManager;
+module.exports = Backbone.Layout;
