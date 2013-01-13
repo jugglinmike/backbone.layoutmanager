@@ -1653,3 +1653,24 @@ test("manage your own view element", 1, function() {
 
   equal(layout.$el.html(), "<ul><li>lol</li></ul>", "Nested element is an LI");
 });
+
+test("mike", 1, function() {
+  var layout = new Backbone.Layout({
+    template: "main",
+    beforeRender: function() {
+      for (var idx = 0; idx < 2; ++idx) {
+        this.insertView(".right", new Backbone.View({
+          manage: true,
+          el: false,
+          template: "view0"
+        }));
+      }
+    },
+    manage: true,
+    el: false
+  });
+
+  layout.render();
+
+  equal(layout.$el.filter(".right").children(".view0").length, 2, "Does things AND stuff");
+});

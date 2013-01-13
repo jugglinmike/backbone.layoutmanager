@@ -366,3 +366,39 @@ test("default `fetch` method retrieves template from element specified by DOM se
 
   equal(actual, expected, "Correctly fetches template string from the DOM");
 });
+
+test("events bind correctly with `el: false`", 1, function() {
+
+  var innerRight = false;
+  var innerLeft = false;
+  var View = Backbone.View.extend({
+    manage: true,
+    el: false,
+    template: "<div class='inner-left'></div><div class='inner-right'></div>",
+    fetch: _.template,
+    events: {
+      "click .inner-right": function() {
+        console.log("sdfsdf");
+        innerRight = true;
+      },
+      "click .inner-left": function() {
+        innerLeft = true;
+      }
+    }
+  });
+  var layout = new Backbone.Layout({
+    template: "<div class='left'></div><div class='right'></div>",
+    fetch: _.template,
+    beforeRender: function() {
+      this.insertView(".right", new View());
+    }
+  });
+
+  layout.render();
+
+  window.layout = layout;
+  layout.$(".inner-right").click();
+  layout.$(".inner-left").click();
+
+  ok(innerRight && innerLeft);
+});
