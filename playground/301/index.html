@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>backbone.layoutmanager playground</title>
+  <script src="../../test/vendor/jquery.js"></script>
+  <script src="../../test/vendor/underscore.js"></script>
+  <script src="../../test/vendor/backbone.js"></script>
+  <script src="../../backbone.layoutmanager.js"></script>
+</head>
+<body>
+  <script type="text/template" id="gallery_layout">
+      <h1><%= title %></h1>
+      <div class="gallery">
+      </div>
+  </script>
+  <script type="text/template" id="albums_view">
+      <header>Gallery Header</header>
+      <div class="albums_container">
+          <ul class="album_list">
+             <!-- Albums list here -->
+          </ul>
+      </div>
+      <footer>Gallery Footer</footer>
+  </script>
+  <script type="text/template" id="gallery_item_view">
+    <a class="log_model" href="#">
+      <span class="thumb"><img src="<%= thumbnail_src %>"></span>
+      <span class="title"><%= title %></span>
+    </a>
+  </script>
+  <div class="container"></div>
+  <script src="playground.js"></script>
+</body>
+</html>
