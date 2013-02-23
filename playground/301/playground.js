@@ -17,7 +17,7 @@ var AlbumItemView = Backbone.Layout.extend({
 });
 
 var AlbumsView = Backbone.Layout.extend({
-    el: false,
+    //el: false,
     template: "#albums_view",
     initialize: function () {
         console.log('AlbumsView.initialize');
