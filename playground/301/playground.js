@@ -16,14 +16,13 @@ var AlbumItemView = Backbone.Layout.extend({
     }
 });
 
-var albums_collection = new Albums();
 var AlbumsView = Backbone.Layout.extend({
     el: false,
     template: "#albums_view",
     initialize: function () {
         console.log('AlbumsView.initialize');
-        this.listenTo(window.albums_collection, 'add', this.addOne);
-        this.listenTo(window.albums_collection, 'reset', this.addAll);
+        this.listenTo(this.collection, 'add', this.addOne);
+        this.listenTo(this.collection, 'reset', this.addAll);
     },
     addOne: function (album) {
         // Here is the problem !
@@ -34,7 +33,7 @@ var AlbumsView = Backbone.Layout.extend({
     },
     addAll: function () {
         console.log('AlbumsView.addAll');
-        window.albums_collection.each(this.addOne, this);
+        this.collection.each(this.addOne, this);
     }
 });
 
@@ -42,25 +41,19 @@ var MainLayout = Backbone.Layout.extend({
     template: "#gallery_layout",
     el: '.container',
     initialize: function () {
-        this.listenTo(this.model, 'change', this.updateData);
+        this.listenTo(this.model, 'change', this.render);
     },
     serialize: function () {
         return this.model.toJSON();
-    },
-    updateData: function () {
-        console.log('GalleryLayout.updateData');
-        this.render();
-        // When this is commented, the albums_view is still inserted multiple times
-        // but no album item is inserted
-        window.albums_collection.reset(albums_data);
     }
 });
 
 var gallery_model = new Gallery();
+var albums_collection = new Albums();
 var mainLayout = new MainLayout({
-    model: window.gallery_model,
+    model: gallery_model,
     views: {
-        '.gallery': new AlbumsView()
+        '.gallery': new AlbumsView({ collection: albums_collection })
     }
 });
 
