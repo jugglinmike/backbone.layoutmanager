@@ -23,7 +23,9 @@
     "grunt-cli": "~0.1",
     "grunt-contrib-jshint": "0.1.1rc5",
     "grunt-contrib-qunit": "0.1.1rc5",
-    "grunt-nodequnit": "~0.1"
+    "grunt-nodequnit": "~0.1",
+    "grunt-mocha": "~0.3.0",
+    "grunt-simple-mocha": "~0.3.2"
   },
   "scripts": {
     "test": "grunt"

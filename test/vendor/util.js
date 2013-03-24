@@ -33,5 +33,6 @@ var testUtil = {
 // If this code is running as a Node.js module, attach the utilities to the
 // module.
 if (testUtil.inNodeJs()) {
-  exports.testUtil = testUtil;
+  global.assert = require('./chai.js').assert;
+  global.testUtil = testUtil;
 }

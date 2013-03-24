@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>backbone.layoutmanager Test Suite</title>
+  <link rel="stylesheet" href="vendor/mocha/mocha.css">
+  <script src="vendor/mocha/mocha.js"></script>
+  <script src="vendor/chai.js"></script>
+  <script>
+    mocha.setup('qunit');
+    assert = chai.assert;
+  </script>
+  <script type="text/grunt">qunit</script>
+  <script src="vendor/util.js"></script>
+  <script src="vendor/jquery.js"></script>
+  <script src="vendor/underscore.js"></script>
+  <script src="vendor/backbone.js"></script>
+  <script src="../backbone.layoutmanager.js"></script>
+
+  <!-- Test scripts -->
+  <script src="expose.js"></script>
+  <script src="configure.js"></script>
+  <script src="setup.js"></script>
+  <!-- script src="views.js"></script -->
+  <!-- script src="dom.js"></script -->
+
+  <script type="text/template" id="dom-template">
+      This template lives in the <b>DOM</b>
+  </script>
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <div id="container" style="display:none"></div>
+
+  <div id="prefilled" style="display:none">
+    <span class="test"></span>
+  </div>
+  <script>
+    // Tests will be initiated through other means when running with PhantomJS
+    if (!("PHANTOMJS" in window)) {
+      mocha.run();
+    }
+  </script>
+</body>
+</html>

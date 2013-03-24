@@ -1,7 +1,7 @@
 (function(window) {
 "use strict";
 
-QUnit.module("views", {
+suite("views", {
   setup: function() {
     var setup = this;
 

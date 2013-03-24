@@ -1,7 +1,7 @@
 (function(window) {
 "use strict";
 
-QUnit.module("dom", {
+suite("dom", {
   setup: function() {
     this.SubView = Backbone.Layout.extend({
       template: _.template(testUtil.templates.testSub),
