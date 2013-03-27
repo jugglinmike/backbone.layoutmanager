@@ -35,7 +35,7 @@ module.exports = ->
         # they were test files in order to properly support tests in Node.js
         # and the browser.
         ".", "test/vendor/util.js",
-        "test/*.js", "!test/views.js", "!test/dom.js"]
+        "test/*.js", "!test/dom.js"]
       options:
         ui: "qunit"
 

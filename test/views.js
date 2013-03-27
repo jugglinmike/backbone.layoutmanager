@@ -1,113 +1,113 @@
 (function(window) {
 "use strict";
 
-suite("views", {
-  setup: function() {
-    var setup = this;
+suite("views");
 
-    // Override the default template fetching behavior such that the tests can
-    // run in the absense of the DOM (for Node.js). Store a reference to the
-    // default `fetch` method to be restored in the teardown of this test
-    // module.
-    this.origFetch = Backbone.Layout.prototype.options.fetch;
+beforeEach(function() {
+  var setup = this;
 
-    Backbone.Layout.configure({
-      fetch: function(name) {
-        return _.template(testUtil.templates[name]);
-      },
+  // Override the default template fetching behavior such that the tests can
+  // run in the absense of the DOM (for Node.js). Store a reference to the
+  // default `fetch` method to be restored in the teardown of this test
+  // module.
+  this.origFetch = Backbone.Layout.prototype.options.fetch;
 
-      suppressWarnings: true
-    });
+  Backbone.Layout.configure({
+    fetch: function(name) {
+      return _.template(testUtil.templates[name]);
+    },
 
-    // Custom View
-    this.View = Backbone.Layout.extend({
-      template: "test",
+    suppressWarnings: true
+  });
 
-      serialize: function() {
-        return { text: this.msg };
-      },
+  // Custom View
+  this.View = Backbone.Layout.extend({
+    template: "test",
 
-      initialize: function(opts) {
-        this.msg = opts.msg;
-      }
-    });
+    serialize: function() {
+      return { text: this.msg };
+    },
 
-    // Initialize View
-    this.InitView = Backbone.Layout.extend({
-      template: "test",
+    initialize: function(opts) {
+      this.msg = opts.msg;
+    }
+  });
 
-      serialize: function() {
-        return { text: this.msg };
-      },
+  // Initialize View
+  this.InitView = Backbone.Layout.extend({
+    template: "test",
 
-      initialize: function(opts) {
-        this.msg = opts.msg;
+    serialize: function() {
+      return { text: this.msg };
+    },
 
-        this.setViews({
-          ".inner-right": new setup.SubView()
-        });
-      }
-    });
+    initialize: function(opts) {
+      this.msg = opts.msg;
 
-    this.SubView = Backbone.Layout.extend({
-      template: "testSub",
+      this.setViews({
+        ".inner-right": new setup.SubView()
+      });
+    }
+  });
 
-      serialize: function() {
-        return { text: "Right" };
-      }
-    });
+  this.SubView = Backbone.Layout.extend({
+    template: "testSub",
 
-    this.EventedListView = Backbone.Layout.extend({
-      template: "list",
+    serialize: function() {
+      return { text: "Right" };
+    }
+  });
 
-      initialize: function() {
-        this.collection.on("reset", this.render, this);
-      },
+  this.EventedListView = Backbone.Layout.extend({
+    template: "list",
 
-      cleanup: function() {
-        this.collection.off(null, null, this);
-      },
+    initialize: function() {
+      this.collection.on("reset", this.render, this);
+    },
 
-      beforeRender: function() {
-        this.collection.each(function(model) {
-          this.insertView("ul", new setup.ItemView({ model: model.toJSON() }));
-        }, this);
-      }
-    });
+    cleanup: function() {
+      this.collection.off(null, null, this);
+    },
 
-    this.ListView = Backbone.Layout.extend({
-      template: "list",
+    beforeRender: function() {
+      this.collection.each(function(model) {
+        this.insertView("ul", new setup.ItemView({ model: model.toJSON() }));
+      }, this);
+    }
+  });
 
-      beforeRender: function() {
-        // Iterate over the passed collection and insert into the view
-        _.each(this.collection, function(model) {
-          this.insertView("ul", new setup.ItemView({ model: model }));
-        }, this);
-      }
-    });
+  this.ListView = Backbone.Layout.extend({
+    template: "list",
 
-    this.ItemView = Backbone.Layout.extend({
-      template: "testSub",
-      tagName: "li",
+    beforeRender: function() {
+      // Iterate over the passed collection and insert into the view
+      _.each(this.collection, function(model) {
+        this.insertView("ul", new setup.ItemView({ model: model }));
+      }, this);
+    }
+  });
 
-      serialize: function() {
-        return this.model;
-      }
-    });
-  },
+  this.ItemView = Backbone.Layout.extend({
+    template: "testSub",
+    tagName: "li",
 
-  teardown: function() {
-    Backbone.Layout.configure({
-      fetch: this.origFetch
-    });
-
-    // Remove `supressWarnings: true`.
-    delete Backbone.Layout.prototype.options.suppressWarnings;
-    delete Backbone.View.prototype.suppressWarnings;
-  }
+    serialize: function() {
+      return this.model;
+    }
+  });
 });
 
-asyncTest("render outside defined partial", 2, function() {
+afterEach(function() {
+  Backbone.Layout.configure({
+    fetch: this.origFetch
+  });
+
+  // Remove `supressWarnings: true`.
+  delete Backbone.Layout.prototype.options.suppressWarnings;
+  delete Backbone.View.prototype.suppressWarnings;
+});
+
+test("render outside defined partial", function(done) {
   var main = new Backbone.Layout({
     template: "main",
   });
@@ -119,16 +119,14 @@ asyncTest("render outside defined partial", 2, function() {
   main.render().done(function() {
     var trimmed = testUtil.trim(this.$(".inner-left").html());
     
-    ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
-    equal(trimmed, "Right", "Correct render");
+    assert.ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
+    assert.equal(trimmed, "Right", "Correct render");
 
-    start();
+    done();
   });
 });
 
-asyncTest("render inside defined partial", function() {
-  expect(2);
-
+test("render inside defined partial", function(done) {
   var main = new Backbone.Layout({
     template: "main",
 
@@ -140,16 +138,14 @@ asyncTest("render inside defined partial", function() {
   main.render().then(function() {
     var trimmed = testUtil.trim( this.$(".inner-left").html() );
 
-    ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
-    equal(trimmed, "Right", "Correct render");
+    assert.ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
+    assert.equal(trimmed, "Right", "Correct render");
 
-    start();
+    done();
   });
 });
 
-asyncTest("Subclassed view uses correct template when rendered.", function() {
-  expect(1);
-
+test("Subclassed view uses correct template when rendered.", function(done) {
   var layout = new Backbone.Layout();
   var BaseView = Backbone.View.extend({
     template: function() {
@@ -175,14 +171,12 @@ asyncTest("Subclassed view uses correct template when rendered.", function() {
     var view = layout.getView("");
     var contents = testUtil.trim(this.$el.text());
       
-    equal(contents, "Extended view template", "Correct template is used");
-    start();
+    assert.equal(contents, "Extended view template", "Correct template is used");
+    done();
   });
 });
 
-asyncTest("re-render a view defined after initialization", function(){
-  expect(2);
-
+test("re-render a view defined after initialization", function(done){
   var trimmed;
   var setup = this;
 
@@ -195,22 +189,20 @@ asyncTest("re-render a view defined after initialization", function(){
   main.render().then(function() {
 
     trimmed = testUtil.trim( this.$(".inner-left").html() );
-    equal(trimmed, "Right", "Correct re-render");
+    assert.equal(trimmed, "Right", "Correct re-render");
 
     main.setView(".right", new setup.View({
       msg: "Right Again"
     })).render().then(function() {
       trimmed = testUtil.trim( this.$(".inner-left").html() );
-      equal(trimmed, "Right Again", "Correct re-render");
+      assert.equal(trimmed, "Right Again", "Correct re-render");
 
-      start();
+      done();
     });
   });
 });
 
-asyncTest("nested views", function() {
-  expect(2);
-
+test("nested views", function(done) {
   var main = new Backbone.Layout({
     template: "main",
 
@@ -229,16 +221,14 @@ asyncTest("nested views", function() {
     var view = this;
     var trimmed = testUtil.trim(this.$(".inner-right div").html());
 
-    ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
-    equal(trimmed, "Right", "Correct render");
+    assert.ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
+    assert.equal(trimmed, "Right", "Correct render");
 
-    start();
+    done();
   });
 });
 
-asyncTest("data on Layout is a function", function() {
-  expect(1);
-
+test("data on Layout is a function", function(done) {
   var testText = "test text";
 
   var main = new Backbone.Layout({
@@ -247,15 +237,13 @@ asyncTest("data on Layout is a function", function() {
   });
 
   main.render().then(function() {
-    equal(testUtil.trim( this.$el.text() ), testText, "correct data");
+    assert.equal(testUtil.trim( this.$el.text() ), testText, "correct data");
 
-    start();
+    done();
   });
 });
 
-asyncTest("data on Layout is an object", function() {
-  expect(1);
-
+test("data on Layout is an object", function(done) {
   var testText = "test text";
 
   var main = new Backbone.Layout({
@@ -264,16 +252,14 @@ asyncTest("data on Layout is an object", function() {
   });
 
   main.render().then(function() {
-    equal(testUtil.trim( this.$el.text() ), testText, "correct data");
+    assert.equal(testUtil.trim( this.$el.text() ), testText, "correct data");
 
-    start();
+    done();
   });
 });
 
 // TODO THIS TEST
-asyncTest("rendered event", function() {
-  expect(4);
-
+test("rendered event", function(done) {
   var main = new Backbone.Layout({
     template: "main",
 
@@ -285,21 +271,19 @@ asyncTest("rendered event", function() {
   });
 
   main.render().then(function() {
-    ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
-    equal(this.$("ul li").length, 2, "Correct number of nested li's");
-    equal(testUtil.trim( this.$("ul li").eq(0).html() ), "one",
+    assert.ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
+    assert.equal(this.$("ul li").length, 2, "Correct number of nested li's");
+    assert.equal(testUtil.trim( this.$("ul li").eq(0).html() ), "one",
       "Correct first li content");
 
-    equal(testUtil.trim( this.$("ul li").eq(1).html() ), "two",
+    assert.equal(testUtil.trim( this.$("ul li").eq(1).html() ), "two",
       "Correct second li content");
 
-    start();
+    done();
   });
 });
 
-asyncTest("insert views", function() {
-  expect(4);
-
+test("insert views", function(done) {
   var main = new Backbone.Layout({
     template: "main",
 
@@ -311,23 +295,21 @@ asyncTest("insert views", function() {
   });
 
   main.render().then(function() {
-    ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
+    assert.ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
 
-    equal(this.$("ul li").length, 2, "Correct number of nested li's");
+    assert.equal(this.$("ul li").length, 2, "Correct number of nested li's");
 
-    equal(testUtil.trim( this.$("ul li").eq(0).html() ), "one",
+    assert.equal(testUtil.trim( this.$("ul li").eq(0).html() ), "one",
       "Correct first li content");
 
-    equal(testUtil.trim( this.$("ul li").eq(1).html() ), "two",
+    assert.equal(testUtil.trim( this.$("ul li").eq(1).html() ), "two",
       "Correct second li content");
 
-    start();
+    done();
   });
 });
 
-asyncTest("using setViews", function() {
-  expect(2);
-
+test("using setViews", function(done) {
   var main = new Backbone.Layout({
     template: "main"
   });
@@ -345,16 +327,14 @@ asyncTest("using setViews", function() {
   main.render().then(function() {
     var trimmed = testUtil.trim(this.$(".inner-right div").html());
 
-    ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
-    equal(trimmed, "Right", "Correct render");
+    assert.ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
+    assert.equal(trimmed, "Right", "Correct render");
 
-    start();
+    done();
   });
 });
 
-asyncTest("using setViews inside initialize", function() {
-  expect(2);
-
+test("using setViews inside initialize", function(done) {
   var main = new Backbone.Layout({
     template: "main"
   });
@@ -368,14 +348,14 @@ asyncTest("using setViews inside initialize", function() {
   main.render().then(function() {
     var trimmed = testUtil.trim( this.$(".inner-right div").html() );
 
-    ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
-    equal(trimmed, "Right", "Correct render");
+    assert.ok(testUtil.isDomNode(this.el), "Contents is a DOM Node");
+    assert.equal(trimmed, "Right", "Correct render");
 
-    start();
+    done();
   });
 });
 
-asyncTest("extend layoutmanager", 1, function() {
+test("extend layoutmanager", function(done) {
   var testText = "test text";
 
   var BaseLayout = Backbone.Layout.extend({
@@ -386,13 +366,13 @@ asyncTest("extend layoutmanager", 1, function() {
   var main = new BaseLayout();
 
   main.render().then(function() {
-    equal(testUtil.trim( this.$el.text() ), testText, "correct data");
+    assert.equal(testUtil.trim( this.$el.text() ), testText, "correct data");
 
-    start();
+    done();
   });
 });
 
-asyncTest("appending views with array literal", 3, function() {
+test("appending views with array literal", function(done) {
   var main = new Backbone.Layout({
     template: "main"
   });
@@ -412,21 +392,19 @@ asyncTest("appending views with array literal", 3, function() {
   });
 
   main.render().then(function() {
-    equal(this.$(".right").children().length, 2, "correct children length");
+    assert.equal(this.$(".right").children().length, 2, "correct children length");
 
-    equal(testUtil.trim(this.$(".right").children().eq(0).text() ), "One",
+    assert.equal(testUtil.trim(this.$(".right").children().eq(0).text() ), "One",
       "correct value set for the first child");
 
-    equal(testUtil.trim(this.$(".right").children().eq(1).text() ), "Two",
+    assert.equal(testUtil.trim(this.$(".right").children().eq(1).text() ), "Two",
       "correct value set for the second child");
 
-    start();
+    done();
   });
 });
 
-asyncTest("single render per view", function() {
-  expect(1);
-
+test("single render per view", function(done) {
   var count = 0;
 
   var main = new Backbone.Layout({
@@ -463,15 +441,14 @@ asyncTest("single render per view", function() {
   });
 
   main.render().then(function() {
-    equal(count, 4, "Render is only called once for each view");
+    assert.equal(count, 4, "Render is only called once for each view");
      
-    start();
+    done();
   });
 });
 
-asyncTest("render callback and deferred context is view", function() {
-  expect(6);
-
+test("render callback and deferred context is view", function(done) {
+  var assertCount = 0;
   var main = new Backbone.Layout({
     template: "main",
 
@@ -491,33 +468,36 @@ asyncTest("render callback and deferred context is view", function() {
   });
 
   main.render().then(function() {
-    equal(this, main, "Layout render callback context is Layout");
-    start();
+    assert.equal(this, main, "Layout render callback context is Layout");
+    assertCount++;
   }).then(function() {
-    equal(this, main, "Layout render deferred context is Layout");
-    start();
+    assert.equal(this, main, "Layout render deferred context is Layout");
+    assertCount++;
   });
 
   main.views[".right"].render().then(function() {
-    equal(this, main.views[".right"], "View render callback context is View");
-    start();
+    assert.equal(this, main.views[".right"], "View render callback context is View");
+    assertCount++;
   }).then(function() {
-    equal(this, main.views[".right"], "View render deferred context is View");
-    start();
+    assert.equal(this, main.views[".right"], "View render deferred context is View");
+    assertCount++;
   });
 
   main.views[".left"][1].views[".inner-left"].render().then(function() {
-    equal(this, main.views[".left"][1].views[".inner-left"],
+    assert.equal(this, main.views[".left"][1].views[".inner-left"],
       "Nested View render callback context is View");
-    start();
+    assertCount++;
   }).then(function() {
-    equal(this, main.views[".left"][1].views[".inner-left"],
+    assert.equal(this, main.views[".left"][1].views[".inner-left"],
       "Nested View render deferred context is View");
-    start();
+    assertCount++;
+
+    assert.equal(assertCount, 6);
+    done();
   });
 });
 
-asyncTest("list items don't duplicate", 2, function() {
+test("list items don't duplicate", function(done) {
   var element;
 
   var main = new Backbone.Layout({
@@ -545,15 +525,15 @@ asyncTest("list items don't duplicate", 2, function() {
     ]);
 
     view.render().then(function() {
-      equal(view.$("ul").children().length, 4, "Only four elements");
-      equal(view.views.ul.length, 4, "Only four Views");
+      assert.equal(view.$("ul").children().length, 4, "Only four elements");
+      assert.equal(view.views.ul.length, 4, "Only four Views");
 
-      start();
+      done();
     });
   }, 5);
 });
 
-test("afterRender triggers for nested views", 1, function() {
+test("afterRender triggers for nested views", function() {
   var triggered = false;
   var main = new Backbone.Layout({
     el: "#prefilled"
@@ -570,14 +550,14 @@ test("afterRender triggers for nested views", 1, function() {
   });
 
   main.render().then(function() {
-    ok(triggered === true, "afterRender is called");
+    assert.ok(triggered === true, "afterRender is called");
      
     start();
   });
 });
 
 // Do this one without a custom render function as well.
-test("view render can be attached inside initalize", 1, function() {
+test("view render can be attached inside initalize", function() {
   var main = new Backbone.Layout({
     template: "main"
   });
@@ -602,17 +582,16 @@ test("view render can be attached inside initalize", 1, function() {
 
   // Initial render.
   main.render().then(function() {
-    equal(testRender.$el.html(), "This works now!", "Content correctly set");
+    assert.equal(testRender.$el.html(), "This works now!", "Content correctly set");
 
     testRender.remove();
 
-    start();
   });
     
   testModel.trigger("change");
 });
 
-test("Allow normal Views to co-exist with LM", 1, function() {
+test("Allow normal Views to co-exist with LM", function() {
   var called = false;
   var View = Backbone.View.extend({
     render: function() {
@@ -624,10 +603,10 @@ test("Allow normal Views to co-exist with LM", 1, function() {
 
   view.render();
 
-  ok(called, "Render methods work without being in LM");
+  assert.ok(called, "Render methods work without being in LM");
 });
 
-test("setView works going from append mode to normal", 1, function() {
+test("setView works going from append mode to normal", function() {
   var main = new Backbone.Layout({
     template: "main",
 
@@ -647,10 +626,10 @@ test("setView works going from append mode to normal", 1, function() {
 
   main.setView(".left", new this.View({ msg: "Right" }));
 
-  ok(true, "setView does not crash");
+  assert.ok(true, "setView does not crash");
 });
 
-test("setView and insertView not working after model change", 1, function() {
+test("setView and insertView not working after model change", function() {
   var setup = this;
 
   var m = new Backbone.Model();
@@ -662,7 +641,7 @@ test("setView and insertView not working after model change", 1, function() {
       this.model.on("change", function() {
         this.render();
 
-        equal(layout.$(".inner-left").length, 2, "rendered twice");
+        assert.equal(layout.$(".inner-left").length, 2, "rendered twice");
       }, this);
     },
 
@@ -691,17 +670,17 @@ test("setView and insertView not working after model change", 1, function() {
   m.set("some", "change");
 });
 
-asyncTest("Ensure afterRender can access element's parent.", 1, function() {
+test("Ensure afterRender can access element's parent.", function(done) {
   var view = new Backbone.Layout({
     template: "main",
 
     views: {
       ".left": new Backbone.Layout({
         afterRender: function() {
-          ok(this.options.contains(view.el, this.el),
+          assert.ok(this.options.contains(view.el, this.el),
             "Parent can be found in afterRender");
 
-          start();
+          done();
         }
       })
     }
@@ -711,7 +690,7 @@ asyncTest("Ensure afterRender can access element's parent.", 1, function() {
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/108
-test("render callback vs deferred resolve when called twice", 1, function() {
+test("render callback vs deferred resolve when called twice", function() {
   // Create a new View.
   var view = new Backbone.View();
 
@@ -721,13 +700,13 @@ test("render callback vs deferred resolve when called twice", 1, function() {
   // Two renders using callback style.
   view.render().then(function() {
     view.render().then(function() {
-      ok(true, "Two render's using callback style work.");
+      assert.ok(true, "Two render's using callback style work.");
     });
   });
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/115
-test("Uncaught RangeError: Maximum call stack size exceeded", 1, function() {
+test("Uncaught RangeError: Maximum call stack size exceeded", function() {
   var View = Backbone.View.extend({
     manage: true
   });
@@ -736,11 +715,11 @@ test("Uncaught RangeError: Maximum call stack size exceeded", 1, function() {
     model: new Backbone.Model()
   }).render();
 
-  ok(true, "No call stack exceeded error");
+  assert.ok(true, "No call stack exceeded error");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/117
-asyncTest("Views getting appended in the wrong order", 3, function() {
+test("Views getting appended in the wrong order", function(done) {
   var View = Backbone.View.extend({
     manage: true,
 
@@ -762,17 +741,17 @@ asyncTest("Views getting appended in the wrong order", 3, function() {
   });
 
   view.render().view.on("afterRender", function() {
-    equal(this.views[""].length, 2, "There should be two views");
-    equal(this.views[""][0].options.order, 1, "The first order should be 1");
-    equal(this.views[""][1].options.order, 2, "The second order should be 2");
+    assert.equal(this.views[""].length, 2, "There should be two views");
+    assert.equal(this.views[""][0].options.order, 1, "The first order should be 1");
+    assert.equal(this.views[""][1].options.order, 2, "The second order should be 2");
 
-    start();
+    done();
   });
 
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/116
-test("Re-rendering of inserted views causes append at the end of the list", 1, function() {
+test("Re-rendering of inserted views causes append at the end of the list", function() {
   var ItemView = Backbone.Layout.extend({
     tagName: "tr",
 
@@ -813,13 +792,13 @@ test("Re-rendering of inserted views causes append at the end of the list", 1, f
     list.views.tbody[0].render().then(function() {
       var $tr = main.$("tbody").first().find("tr");
 
-      equal($tr.html(), "hello", "Correct tbody order.");
+      assert.equal($tr.html(), "hello", "Correct tbody order.");
     });
   });
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/122
-test("afterRender() not called on item added with insertView()", 2, function() {
+test("afterRender() not called on item added with insertView()", function() {
   var hitAfter = 0;
   var hitBefore = 0;
 
@@ -868,12 +847,12 @@ test("afterRender() not called on item added with insertView()", 2, function() {
 
   list.render().then(function() {
     m.set("something", "changed");
-    equal(hitBefore, 2, "beforeRender hit twice");
-    equal(hitAfter, 2, "afterRender hit twice");
+    assert.equal(hitBefore, 2, "beforeRender hit twice");
+    assert.equal(hitAfter, 2, "afterRender hit twice");
   });
 });
 
-test("Render doesn't work inside insertView", 1, function() {
+test("Render doesn't work inside insertView", function() {
   var V = Backbone.Layout.extend({
     template: "<p class='inner'><%= lol %></p>",
     fetch: function(path) { return _.template(path); }
@@ -887,11 +866,11 @@ test("Render doesn't work inside insertView", 1, function() {
   n.render();
   n.insertView("p", new V({ serialize: { lol: "hi" } })).render();
 
-  equal(n.$("p.inner").html(), "hi", "Render works with insertView");
+  assert.equal(n.$("p.inner").html(), "hi", "Render works with insertView");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/131
-test("Ensure global paths are adhered to", 1, function() {
+test("Ensure global paths are adhered to", function() {
     Backbone.Layout.configure({
       prefix: "test/"
     });
@@ -900,7 +879,7 @@ test("Ensure global paths are adhered to", 1, function() {
       template: "here"
     });
 
-    equal(t.getAllOptions().prefix, "test/", "Prefix properly hooked up");
+    assert.equal(t.getAllOptions().prefix, "test/", "Prefix properly hooked up");
 
     Backbone.Layout.configure({
       prefix: ""
@@ -908,7 +887,7 @@ test("Ensure global paths are adhered to", 1, function() {
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/137
-test("afterRender not firing", 1, function() {
+test("afterRender not firing", function() {
   var hit = false;
   var l = new Backbone.Layout({
     template: "<p></p>",
@@ -928,10 +907,10 @@ test("afterRender not firing", 1, function() {
 
   l.setView("p", new V()).render();
 
-  ok(hit, "afterRender was hit successfully");
+  assert.ok(hit, "afterRender was hit successfully");
 });
 
-test("multiple subclasses afterRender works", 1, function() {
+test("multiple subclasses afterRender works", function() {
   var hit = 0;
   var SubClass1 = Backbone.Layout.extend({
     template: "<p></p>",
@@ -973,12 +952,12 @@ test("multiple subclasses afterRender works", 1, function() {
   test.render().then(function() {
     test.triggerRender();
 
-    equal(hit, 1, "Hit was correctly fired once");
+    assert.equal(hit, 1, "Hit was correctly fired once");
   });
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/148
-test("Views cannot be removed once added to a Layout", 3, function() {
+test("Views cannot be removed once added to a Layout", function() {
   var v;
 
   var Child = Backbone.Layout.extend({
@@ -989,17 +968,17 @@ test("Views cannot be removed once added to a Layout", 3, function() {
   v = layout.setView("", new Child());
 
   layout.render();
-  equal(layout.$(".child").length, 1, "Only one child");
+  assert.equal(layout.$(".child").length, 1, "Only one child");
 
   v.remove();
-  equal(layout.$(".child").length, 0, "No children");
+  assert.equal(layout.$(".child").length, 0, "No children");
 
   layout.render();
-  equal(layout.$(".child").length, 0, "No children");
+  assert.equal(layout.$(".child").length, 0, "No children");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/150
-asyncTest("Views intermittently render multiple times", 1, function() {
+test("Views intermittently render multiple times", function(done) {
   // Simulating fetch, should only execute once per template and then cache.
   function fetch(name) {
     var done = this.async();
@@ -1062,8 +1041,8 @@ asyncTest("Views intermittently render multiple times", 1, function() {
         new View3()
       ]
     }).render().done(function() {
-      equal(main.$(".listItem").length, 5, "Only five list items");
-      start();
+      assert.equal(main.$(".listItem").length, 5, "Only five list items");
+      done();
     });
   //});
 });
@@ -1088,23 +1067,23 @@ test("remove method not working as expected", function() {
 
   list.render();
 
-  equal(list.getViews().value().length, 3, "Length before remove is correct");
+  assert.equal(list.getViews().value().length, 3, "Length before remove is correct");
 
   // Remove the second sub view.
   it.remove();
 
-  equal(list.getViews().value().length, 2, "Length after remove is correct");
+  assert.equal(list.getViews().value().length, 2, "Length after remove is correct");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/156
 test("Shouldn't calling $('#app').html(new BackboneLayout().render().el) work?", function() {
 
-  ok(testUtil.isDomNode(new Backbone.Layout().render().view.el), "Is an element?");
+  assert.ok(testUtil.isDomNode(new Backbone.Layout().render().view.el), "Is an element?");
 
 });
 
 // Async rendering.
-asyncTest("beforeRender and afterRender called twice in async", 3, function() {
+test("beforeRender and afterRender called twice in async", function(done) {
   var hitAfter = 0;
   var hitBefore = 0;
   var renderNum = 0;
@@ -1164,11 +1143,11 @@ asyncTest("beforeRender and afterRender called twice in async", 3, function() {
   list.options.when([list.render(), list.render()]).then(function() {
     list.getView("tbody").on("afterRender", function() {
       if (hitAfter === renderNum) {
-        equal(hitBefore, 3, "beforeRender hit four times");
-        equal(hitAfter, 3, "afterRender hit four times");
-        equal(renderNum, 3, "render called four times");
+        assert.equal(hitBefore, 3, "beforeRender hit four times");
+        assert.equal(hitAfter, 3, "afterRender hit four times");
+        assert.equal(renderNum, 3, "render called four times");
 
-        start();
+        done();
       }
     });
 
@@ -1176,6 +1155,7 @@ asyncTest("beforeRender and afterRender called twice in async", 3, function() {
   });
 });
 
+/*
 test("Array syntax for rendering a list", 2, function() {
   var Test = Backbone.Layout.extend({
     views: {
@@ -1187,8 +1167,8 @@ test("Array syntax for rendering a list", 2, function() {
 
   test.render();
 
-  equal(test.views[""].length, 1, "Correct length");
-  equal(testUtil.trim(test.$("div").text()), "Right", "Correct text");
+  assert.equal(test.views[""].length, 1, "Correct length");
+  assert.equal(testUtil.trim(test.$("div").text()), "Right", "Correct text");
 });
 
 test("Remove a View from its parent", 1, function() {
@@ -1202,7 +1182,7 @@ test("Remove a View from its parent", 1, function() {
 
   parent._removeViews(true);
 
-  ok(!parent.views.lol, "View has been removed");
+  assert.ok(!parent.views.lol, "View has been removed");
 });
 
 test("View attributes should be copied over to new View", 1, function() {
@@ -1214,7 +1194,7 @@ test("View attributes should be copied over to new View", 1, function() {
 
   var view = parent.setView("hi", new Backbone.Layout({ id: "you" }));
 
-  equal(view.$el.attr("id"), "you", "Correct id set.");
+  assert.equal(view.$el.attr("id"), "you", "Correct id set.");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/178
@@ -1243,8 +1223,8 @@ test("view is not refreshed according to model.on", 2, function() {
   autoView.render().then(function() {
     model.set("test", "this");
 
-    equal(beforeCount, 2, "beforeRender was triggered");
-    equal(afterCount, 2, "afterRender was triggered");
+    assert.equal(beforeCount, 2, "beforeRender was triggered");
+    assert.equal(afterCount, 2, "afterRender was triggered");
   });
 });
 
@@ -1266,7 +1246,7 @@ test("cleanup is not called erroneously", 1, function() {
   parent.render();
   parent.render();
 
-  ok(!called, "The cleanup method was never called");
+  assert.ok(!called, "The cleanup method was never called");
 });
 
 test("cleanup called on View w/o parent when removed", 1, function() {
@@ -1281,7 +1261,7 @@ test("cleanup called on View w/o parent when removed", 1, function() {
 
   v.remove();
 
-  ok(hit, "Cleanup was successfully hit");
+  assert.ok(hit, "Cleanup was successfully hit");
 });
 
 asyncTest("cleanup called on subview when parent view removed", function() {
@@ -1308,8 +1288,8 @@ asyncTest("cleanup called on subview when parent view removed", function() {
     
   main.render().then(function() {
     main.remove();   
-    ok(hitSub, "Cleanup successfully called on a subview when parent removed");
-    ok(hitParent, "Cleanup successfully called on parent view when removed");  
+    assert.ok(hitSub, "Cleanup successfully called on a subview when parent removed");
+    assert.ok(hitParent, "Cleanup successfully called on parent view when removed");  
     start();
   });
 });
@@ -1321,7 +1301,7 @@ test("attached even if already rendered", 1, function() {
   var layout = new Backbone.Layout();
   layout.setView(view);
 
-  ok(view.options.contains(layout.el, view.el), "View exists inside Layout");
+  assert.ok(view.options.contains(layout.el, view.el), "View exists inside Layout");
 });
 
 test("correctly remove inserted child views", function() {
@@ -1366,15 +1346,15 @@ test("correctly remove inserted child views", function() {
   });
 
   list.render();
-  equal(list.getViews().value().length, 3, "Correct number of views.");
+  assert.equal(list.getViews().value().length, 3, "Correct number of views.");
   
   list.insertView("tbody", item3);
 
   list.render();
-  equal(list.getViews().value().length, 3, "Correct number of views after reinsert.");
+  assert.equal(list.getViews().value().length, 3, "Correct number of views after reinsert.");
 
   list.render();
-  equal(list.getViews().value().length, 3, "Correct number of views after re-render.");
+  assert.equal(list.getViews().value().length, 3, "Correct number of views after re-render.");
 
 });
 
@@ -1387,9 +1367,9 @@ test("getView should accept a selector name too", 3, function() {
   view.insertView("c", new Backbone.Layout());
   view.insertView("c", new Backbone.Layout());
 
-  equal(view.getView("a"), a, "Single getView returns single view");
-  equal(view.getViews("b").value()[0], b, "Using getViews will return the single view in an array");
-  equal(view.getViews("c").value().length, 2, "Two Views returned from getViews");
+  assert.equal(view.getView("a"), a, "Single getView returns single view");
+  assert.equal(view.getViews("b").value()[0], b, "Using getViews will return the single view in an array");
+  assert.equal(view.getViews("c").value().length, 2, "Two Views returned from getViews");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/302
@@ -1405,10 +1385,10 @@ test("getView should accept a `_.where` object too", 4, function() {
   view.insertView("c", new Backbone.Layout({ model: model }));
   view.insertView("c", new Backbone.Layout({ id: 4 }));
 
-  equal(view.getView({ model: model }), a, "Single getView returns single view");
-  equal(view.getView({ model: model2 }), d, "Single getView returns single view");
-  equal(view.getViews({ id: 4 }).first().value(), b, "Using getViews will return the single view in an array");
-  equal(view.getViews({ id: 4 }).value().length, 2, "Two Views returned from getViews");
+  assert.equal(view.getView({ model: model }), a, "Single getView returns single view");
+  assert.equal(view.getView({ model: model2 }), d, "Single getView returns single view");
+  assert.equal(view.getViews({ id: 4 }).first().value(), b, "Using getViews will return the single view in an array");
+  assert.equal(view.getViews({ id: 4 }).value().length, 2, "Two Views returned from getViews");
 });
 
 asyncTest("insertViews should accept a single array", 1, function() {
@@ -1432,7 +1412,7 @@ asyncTest("insertViews should accept a single array", 1, function() {
   main.render().done(function() {
     var items = this.$(".right ul li");
 
-    equal(items.length, 2, "Proper array insert");
+    assert.equal(items.length, 2, "Proper array insert");
     start();
   });
 });
@@ -1455,7 +1435,7 @@ asyncTest("Allow async custom rendering of templates", 1, function() {
 
   var test = new Test();
   test.render().done(function() {
-    equal(this.$el.html(), "Hello World!", "Contents match correctly");
+    assert.equal(this.$el.html(), "Hello World!", "Contents match correctly");
 
     start();
   });
@@ -1467,7 +1447,7 @@ test("cleanup hit", 1, function() {
     manage: true,
 
     render: function() {
-      ok(false);
+      assert.ok(false);
     },
 
     initialize: function() {
@@ -1480,7 +1460,7 @@ test("cleanup hit", 1, function() {
   view.remove();
 
   collection.trigger("reset");
-  ok(true);
+  assert.ok(true);
 });
 
 asyncTest("Duplicate sub-views are removed when their parent view is rendered repeatedly", 1, function() {
@@ -1504,7 +1484,7 @@ asyncTest("Duplicate sub-views are removed when their parent view is rendered re
   });
 
   list.options.when([list.render(), list.render()]).done(function() {
-    equal(list.views[""].length, 1, "All repeated sub-views have been removed");
+    assert.equal(list.views[""].length, 1, "All repeated sub-views have been removed");
     start();
   });
 });
@@ -1526,7 +1506,7 @@ test("Scoping nested view assignment selector to parent", 1, function() {
 
   layout.render();
 
-  equal(layout.$(".test div").html(), "lol", "Correct placeholder text");
+  assert.equal(layout.$(".test div").html(), "lol", "Correct placeholder text");
 });
 
 test("'insertView' uses user-defined `insert` method", 2, function() {
@@ -1547,8 +1527,8 @@ test("'insertView' uses user-defined `insert` method", 2, function() {
 
   layout.render();
 
-  ok(hit, "Invoked user-defined `insert` method when rendering");
-  equal(layout.$el.text(), "HelloWorld", "Used user-defined `insert` method to insert view HTML into layout");
+  assert.ok(hit, "Invoked user-defined `insert` method when rendering");
+  assert.equal(layout.$el.text(), "HelloWorld", "Used user-defined `insert` method to insert view HTML into layout");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/222
@@ -1569,10 +1549,10 @@ test("Different Orders of Rendering for a Re-Render", 2, function() {
   parent.setView("test", child);
 
   parent.render();
-  equal(msg, "ab", "Initial correct ordering");
+  assert.equal(msg, "ab", "Initial correct ordering");
 
   parent.render();
-  equal(msg, "abab", "Even after re-render, maintains correct ordering");
+  assert.equal(msg, "abab", "Even after re-render, maintains correct ordering");
 });
 
 test("Calling child.render() before parent.insertView() should still insert the rendered child.", 2, function() {
@@ -1587,12 +1567,12 @@ test("Calling child.render() before parent.insertView() should still insert the 
   // If you `insertView` this marks the View in the hierarchy, but does not
   // actually modify the DOM.
   parent.insertView(child);
-  equal(parent.getView().tagName, "div", "Children inserted into parent");
+  assert.equal(parent.getView().tagName, "div", "Children inserted into parent");
 
   // When you call `render` this actually modifies the DOM structure to match
   // the virtual structure.
   parent.render();
-  equal(parent.$("div").length, 1, "Children inserted into parent");
+  assert.equal(parent.$("div").length, 1, "Children inserted into parent");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/189
@@ -1602,24 +1582,24 @@ test("Allow layout to remove views", 2, function() {
 
   view.setView("lol", anotherView);
 
-  equal(view.getViews().value().length, 1, "Correct length");
+  assert.equal(view.getViews().value().length, 1, "Correct length");
 
   view.removeView("lol");
 
-  equal(view.getViews().value().length, 0, "All nested views under lol removed");
+  assert.equal(view.getViews().value().length, 0, "All nested views under lol removed");
 });
 
 test("event bubbling", 2, function() {
   var parent = new Backbone.Layout();
 
   parent.on("all", function() {
-    ok(true, "the event is bubbled correct to the parent");
+    assert.ok(true, "the event is bubbled correct to the parent");
   });
   
   var child = parent.insertView(new Backbone.Layout());
 
   child.on("lol", function() {
-    ok(true, "the event is triggered correctly on the child");
+    assert.ok(true, "the event is triggered correctly on the child");
   });
 
   child.trigger("lol");
@@ -1643,7 +1623,7 @@ test("Lost triggered events in cached sub-view", 2, function() {
   // Main view.
   var MainView = Backbone.Layout.extend({
     beforeRender: function() {
-      test.on("event", function(type) { ok(true); });
+      test.on("event", function(type) { assert.ok(true); });
 
       // Render cached view.
       this.insertView(test);
@@ -1676,8 +1656,8 @@ test("afterRender callback will be triggered twice while beforeRender only once"
 
   view.model.set("a", "b");
 
-  equal(count.before, 2, "beforeRender hit twice");
-  equal(count.after, 2, "afterRender hit twice");
+  assert.equal(count.before, 2, "beforeRender hit twice");
+  assert.equal(count.after, 2, "afterRender hit twice");
 });
 
 test("manage your own view element", 1, function() {
@@ -1695,7 +1675,7 @@ test("manage your own view element", 1, function() {
 
   layout.render();
 
-  equal(layout.$el.html(), "<ul><li>lol</li></ul>", "Nested element is an LI");
+  assert.equal(layout.$el.html(), "<ul><li>lol</li></ul>", "Nested element is an LI");
 });
 
 test("additional testing that view's without a parent can manage", 1, function() {
@@ -1718,7 +1698,7 @@ test("additional testing that view's without a parent can manage", 1, function()
 
   layout.render();
 
-  equal(layout.$el.filter(".right").children(".view0").length, 2, "Correct length");
+  assert.equal(layout.$el.filter(".right").children(".view0").length, 2, "Correct length");
 });
 
 asyncTest("Ordering sub-views with varying render delays", 1, function() {
@@ -1748,7 +1728,7 @@ asyncTest("Ordering sub-views with varying render delays", 1, function() {
 
   var sw = new Sandwich();
   sw.render().done(function() {
-    equal(sw.$el.text(), "[outside][inside][outside]", "sub-view fetch delays do not affect ordering");
+    assert.equal(sw.$el.text(), "[outside][inside][outside]", "sub-view fetch delays do not affect ordering");
     start();
   });
 });
@@ -1774,7 +1754,7 @@ asyncTest("Re-render confused when `el: false`", 1, function() {
   
   setTimeout(function() {
     view.render().then(function() {
-      equal(layout.$("li").length, 1, "only one LI");
+      assert.equal(layout.$("li").length, 1, "only one LI");
       start();
     });
   }, 1);
@@ -1801,7 +1781,7 @@ test("re-rendering a template works correctly", 1, function() {
   view.render().then(function() {
     var newText = layout.getView("ul").$el.html();
 
-    notEqual(newText, text, "different contents");
+    assert.notEqual(newText, text, "different contents");
   });
 });
 
@@ -1842,7 +1822,7 @@ test("`el: false` with deeply nested views", 1, function() {
     '</div>'
   ];
 
-  equal(view.$el.html(), expected.join(''), "the same HTML");
+  assert.equal(view.$el.html(), expected.join(''), "the same HTML");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/286
@@ -1902,7 +1882,7 @@ test("`el: false` with rerendering inserted child views doesn't replicate views"
     '</div>'
   ];
 
-  equal(view.$el.html(), expected.join(''), "the same HTML");
+  assert.equal(view.$el.html(), expected.join(''), "the same HTML");
 });
 
 test("`el: false` with non-container element will not be duplicated", 2, function() {
@@ -1918,16 +1898,16 @@ test("`el: false` with non-container element will not be duplicated", 2, functio
   layout.setViews({
     ".content": view
   }).render().done(function() {
-    equal(layout.$(".content").html(), expected);
+    assert.equal(layout.$(".content").html(), expected);
     view.render().done(function() {
-        equal(layout.$(".content").html(), expected);
+        assert.equal(layout.$(".content").html(), expected);
     });
   });
 });
 
 test("trigger callback on a view with `keep: true`", 1, function() {
   var myView = new Backbone.Layout({
-    keep: true, cleanup: function() { ok(true, "Cleanup triggered"); }
+    keep: true, cleanup: function() { assert.ok(true, "Cleanup triggered"); }
   });
 
   var layout = new Backbone.Layout();
@@ -1955,24 +1935,24 @@ test("templates should be trimmed before insertion", 1, function() {
 
   layout.render();
 
-  equal(layout.$el.text(), "Hey");
+  assert.equal(layout.$el.text(), "Hey");
 
 });
 
 test("getViews returns an empty array for unrecognized selectors", function() {
   var layout = new Backbone.Layout();
-  equal(layout.getViews('.whats-the-buzz').value().length, 0);
+  assert.equal(layout.getViews('.whats-the-buzz').value().length, 0);
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/328
 test("cleanViews invokes cleanup method in the context of the layout", function() {
   var layout = new Backbone.Layout({
     cleanup: function() {
-      equal(this, layout);
+      assert.equal(this, layout);
     }
   });
 
   Backbone.Layout.cleanViews(layout);
 });
-
+*/
 })(typeof global !== "undefined" ? global : this);
