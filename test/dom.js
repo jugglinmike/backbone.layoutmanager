@@ -14,8 +14,7 @@ suite("dom", {
   }
 });
 
-asyncTest("use layout without a template property", function() {
-  expect(1);
+test("use layout without a template property", function(done) {
 
   var main = new Backbone.Layout({
     el: "#prefilled"
@@ -26,14 +25,14 @@ asyncTest("use layout without a template property", function() {
   });
 
   main.render().then(function() {
-    equal(testUtil.trim( this.$(".test").text() ), "Right",
+    assert.equal(testUtil.trim( this.$(".test").text() ), "Right",
       "Able to use an existing DOM element");
 
-    start();
+    done();
   });
 });
 
-asyncTest("afterRender inside Document", function() {
+test("afterRender inside Document", function(done) {
   var inDocument = false;
 
   var ProblemView = Backbone.Layout.extend({
@@ -47,9 +46,9 @@ asyncTest("afterRender inside Document", function() {
       var doc = document.body;
       inDocument = this.options.contains(doc, this.el);
 
-      ok(inDocument, "element in is in the page Document");
+      assert.ok(inDocument, "element in is in the page Document");
 
-      start();
+      done();
     }
   });
 
@@ -82,7 +81,7 @@ asyncTest("afterRender inside Document", function() {
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/118
-test("events not correctly bound", 1, function() {
+test("events not correctly bound", function() {
   var hit = false;
 
   var m = new Backbone.Model();
@@ -126,13 +125,13 @@ test("events not correctly bound", 1, function() {
   view.render().then(function() {
     view.views.p[0].$el.click();
 
-    ok(hit, "Event was fired");
+    assert.ok(hit, "Event was fired");
   });
 
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/126
-test("render works when called late", 1, function() {
+test("render works when called late", function() {
   var hit = false;
   var A = Backbone.Model.extend({});
   var ACollection = Backbone.Collection.extend({ model: A });
@@ -179,11 +178,11 @@ test("render works when called late", 1, function() {
   // Simulate click.
   layout.$(".hitMe").click();
 
-  ok(hit, "render works as expected when called late");
+  assert.ok(hit, "render works as expected when called late");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/126
-test("render works when assigned early", 1, function() {
+test("render works when assigned early", function() {
   var hit = false;
   var A = Backbone.Model.extend({});
   var ACollection = Backbone.Collection.extend({ model: A });
@@ -229,11 +228,11 @@ test("render works when assigned early", 1, function() {
   // Simulate click.
   layout.$(".hitMe").click();
 
-  ok(hit, "render works as expected when assigned early");
+  assert.ok(hit, "render works as expected when assigned early");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/134
-test("Ensure events are copied over properly", 1, function() {
+test("Ensure events are copied over properly", function() {
   var hit = false;
   var layout = new Backbone.Layout({
     template: "<p></p>",
@@ -252,12 +251,12 @@ test("Ensure events are copied over properly", 1, function() {
 
   layout.$("p").click();
 
-  ok(hit, "Events were bound and triggered correctly");
+  assert.ok(hit, "Events were bound and triggered correctly");
 });
 
 // https://github.com/tbranyen/backbone.layoutmanager/issues/134
 // https://github.com/tbranyen/backbone.layoutmanager/issues/139
-asyncTest("events are bound correctly", 1, function() {
+test("events are bound correctly", function(done) {
   var hit = 0;
 
   var l = new Backbone.Layout({
@@ -290,12 +289,12 @@ asyncTest("events are bound correctly", 1, function() {
   l.render().then(function() {
     l.$("p div").trigger("click");
 
-    equal(hit, 2, "Event handler is bound and fired correctly");
-    start();
+    assert.equal(hit, 2, "Event handler is bound and fired correctly");
+    done();
   });
 });
 
-asyncTest("more events issues", 1, function() {
+test("more events issues", function(done) {
   var hit = 0;
 
   var V = Backbone.Layout.extend({
@@ -344,13 +343,13 @@ asyncTest("more events issues", 1, function() {
 
   l.$("p div").trigger("click");
 
-  equal(hit, 2, "Event handler is bound and fired correctly");
-  start();
+  assert.equal(hit, 2, "Event handler is bound and fired correctly");
+  done();
 });
 
 // Explicitly excersize the default `fetch` implementation (most tests override
 // that functionality to use in-memory templates)
-test("default `fetch` method retrieves template from element specified by DOM selector", 1, function() {
+test("default `fetch` method retrieves template from element specified by DOM selector", function() {
 
   var vyou = new Backbone.Layout({
     template: "#dom-template"
@@ -362,10 +361,10 @@ test("default `fetch` method retrieves template from element specified by DOM se
   expected = "This template lives in the <b>DOM</b>";
   actual = testUtil.trim(vyou.$el.html());
 
-  equal(actual, expected, "Correctly fetches template string from the DOM");
+  assert.equal(actual, expected, "Correctly fetches template string from the DOM");
 });
 
-asyncTest("events delegated correctly when managing your own view element", 1, function() {
+test("events delegated correctly when managing your own view element", function(done) {
   var view = new Backbone.View({
     manage: true, el: false,
 
@@ -382,12 +381,13 @@ asyncTest("events delegated correctly when managing your own view element", 1, f
 
   view.render().then(function() {
     view.$el.click();
-    equal(view.clicked, true, "onClick event was fired");
-    start();
+    assert.equal(view.clicked, true, "onClick event was fired");
+    done();
   });
 });
 
-asyncTest("afterRender callback is triggered too early", 2, function() {
+test("afterRender callback is triggered too early", function(done) {
+  var count = 0;
   var inDocument = false;
 
   var ProblemView = Backbone.Layout.extend({
@@ -401,7 +401,8 @@ asyncTest("afterRender callback is triggered too early", 2, function() {
       var doc = document.body;
       inDocument = $.contains(doc, this.el);
 
-      ok(inDocument, "element in is in the page Document");
+      count++;
+      assert.ok(inDocument, "element in is in the page Document");
     }
   });
 
@@ -423,7 +424,8 @@ asyncTest("afterRender callback is triggered too early", 2, function() {
 
   newView.render().then(function() {
     newView.render().then(function() {
-      start();
+      assert.equal(count, 2);
+      done();
     });
   });
 });

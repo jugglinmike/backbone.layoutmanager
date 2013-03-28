@@ -533,7 +533,7 @@ test("list items don't duplicate", function(done) {
   }, 5);
 });
 
-test("afterRender triggers for nested views", function() {
+test("afterRender triggers for nested views", function(done) {
   var triggered = false;
   var main = new Backbone.Layout({
     el: "#prefilled"
@@ -552,7 +552,7 @@ test("afterRender triggers for nested views", function() {
   main.render().then(function() {
     assert.ok(triggered === true, "afterRender is called");
      
-    start();
+    done();
   });
 });
 
@@ -1731,7 +1731,7 @@ test("Ordering sub-views with varying render delays", function(done) {
   });
 });
 
-test("Re-render confused when `el: false`", function() {
+test("Re-render confused when `el: false`", function(done) {
   var View = Backbone.Layout.extend({
     el: false,
     
