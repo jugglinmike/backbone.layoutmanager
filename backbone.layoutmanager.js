@@ -94,16 +94,16 @@ var LayoutManager = Backbone.View.extend({
   },
 
   // Shorthand to `setView` function with the `insert` flag set.
-  insertView: function(selector, view, insertBefore) {
+  insertView: function(selector, view, insertOptions) {
     // If the `view` argument exists, then a selector was passed in.  This code
     // path will forward the selector on to `setView`.
     if (view) {
-      return this.setView(selector, view, true, insertBefore);
+      return this.setView(selector, view, true, insertOptions);
     }
 
     // If no `view` argument is defined, then assume the first argument is the
     // View, somewhat now confusingly named `selector`.
-    return this.setView(selector, true, insertBefore);
+    return this.setView(selector, true, insertOptions);
   },
 
   // Iterate over an object and ensure every value is wrapped in an array to
@@ -187,14 +187,14 @@ var LayoutManager = Backbone.View.extend({
   //
   // Must definitely wrap any render method passed in or defaults to a
   // typical render function `return layout(this).render()`.
-  setView: function(name, view, insert, insertBefore) {
+  setView: function(name, view, insert, insertOptions) {
     var manager, options, selector;
     // Parent view, the one you are setting a View on.
     var root = this;
 
     // If no name was passed, use an empty string and shift all arguments.
     if (typeof name !== "string") {
-      insertBefore = insert;
+      insertOptions = insert;
       insert = view;
       view = name;
       name = "";
@@ -240,22 +240,13 @@ var LayoutManager = Backbone.View.extend({
       return root.views[selector] = view;
     }
 
-    // Insert into views array. If an index is specified, splice there; otherwise, 
-    // create a new array.
-    // Ensure this.views[name] is an array and push this View to the end.
-    if(_.isNumber(insertBefore)) {
-      if(root.views[name]){
-        aSplice.call(root.views[name], insertBefore, 0, view);
-      } else {
-        root.views[name] = [view];
-      }
-    } else {
-      root.views[name] = aConcat.call([], root.views[name] || [], view);
-    }
+    // Ensure this.views[selector] is an array and push this View to
+    // the end.
+    root.views[selector] = aConcat.call([], root.views[name] || [], view);
 
     // Put the view into `insert` mode.
     manager.insert = true;
-    manager.insertBefore = insertBefore;
+    manager.insertOptions = insertOptions;
 
     return view;
   },
@@ -925,7 +916,7 @@ LayoutManager.prototype.options = {
 
     // Use the insert method if insert argument is true.
     if (manager.insert) {
-      this.insert($root, $el, manager.insertBefore);
+      this.insert($root, $el, manager.insertOptions);
     } else {
       this.html($root, $el);
     }
@@ -938,21 +929,7 @@ LayoutManager.prototype.options = {
   },
 
   // Very similar to HTML except this one will appendChild by default.
-  // If an integer `insertAt` is supplied, the view will be appended at the specified index.
-  insert: function($root, $el, insertBefore) {
-    if(_.isNumber(insertBefore)) {
-      var $baseEl;
-      // If insertBefore is a negative number, it behaves like the index in Array#splice.
-      if(insertBefore < 0) {
-        $baseEl = $root.children().eq(Math.max(0, $root.children().length + insertBefore));
-      } else {
-        $baseEl = $root.children().eq(insertBefore);
-      }
-      if($baseEl.length) {
-        $baseEl.before($el);
-        return;
-      }
-    }
+  insert: function($root, $el, insertOptions) {
     $root.append($el);
   },
 
