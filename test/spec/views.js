@@ -467,10 +467,16 @@ asyncTest("single render per view", function() {
   });
 });
 
-test("render callback and deferred context is view", 6, function() {
+asyncTest("render callback and deferred context is view", 6, function() {
   // Since we have multiple start() calls, we use stop() with the 
   // number of start calls instead of using asyncTest
-  stop(6);
+  var count = 6;
+  function finish() {
+    count--;
+    if (count === 0) {
+      start();
+    }
+  }
 
   var main = new Backbone.Layout({
     template: "main",
@@ -492,28 +498,28 @@ test("render callback and deferred context is view", 6, function() {
 
   main.render().promise().then(function() {
     equal(this, main, "Layout render callback context is Layout");
-    start();
+    finish();
   }).then(function() {
     equal(this, main, "Layout render deferred context is Layout");
-    start();
+    finish();
   });
 
   main.views[".right"].render().promise().then(function() {
     equal(this, main.views[".right"], "View render callback context is View");
-    start();
+    finish();
   }).then(function() {
     equal(this, main.views[".right"], "View render deferred context is View");
-    start();
+    finish();
   });
 
   main.views[".left"][1].views[".inner-left"].render().promise().then(function() {
     equal(this, main.views[".left"][1].views[".inner-left"],
       "Nested View render callback context is View");
-    start();
+    finish();
   }).then(function() {
     equal(this, main.views[".left"][1].views[".inner-left"],
       "Nested View render deferred context is View");
-    start();
+    finish();
   });
 });
 
