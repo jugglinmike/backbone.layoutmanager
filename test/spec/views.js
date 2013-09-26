@@ -522,7 +522,7 @@ asyncTest("render callback and deferred context is view", 6, function() {
     finish();
   });
 });
-
+/*
 asyncTest("list items don't duplicate", 2, function() {
   var main = new Backbone.Layout({
     template: "main"
@@ -615,7 +615,7 @@ asyncTest("view render can be attached inside initalize", 1, function() {
 
   testModel.trigger("change");
 });
-
+/*
 test("Allow normal Views to co-exist with LM", 1, function() {
   var called = false;
   var View = Backbone.View.extend({
@@ -713,7 +713,7 @@ asyncTest("Ensure afterRender can access element's parent.", 1, function() {
 
   view.render();
 });
-
+/*
 // https://github.com/tbranyen/backbone.layoutmanager/issues/108
 test("render callback vs deferred resolve when called twice", 1, function() {
   // Create a new View.
@@ -821,7 +821,7 @@ test("Re-rendering of inserted views causes append at the end of the list", 1, f
     });
   });
 });
-
+/*
 // https://github.com/tbranyen/backbone.layoutmanager/issues/122
 test("afterRender() not called on item added with insertView()", 2, function() {
   var hitAfter = 0;
@@ -934,7 +934,7 @@ test("afterRender not firing", 1, function() {
 
   ok(hit, "afterRender was hit successfully");
 });
-
+/*
 test("multiple subclasses afterRender works", 1, function() {
   var hit = 0;
   var SubClass1 = Backbone.Layout.extend({
@@ -2243,9 +2243,10 @@ test("A view's 'views' option should auto-invoke passed functions.", 3, function
       "Correct second li content");
   });
 });
-
+*/
 })();
 
+/*
 // https://github.com/tbranyen/backbone.layoutmanager/issues/383
 test("A view will not throw an error when defined without an events hash", 1, function() {
   var TestView = Backbone.View.extend({
@@ -2254,3 +2255,4 @@ test("A view will not throw an error when defined without an events hash", 1, fu
   new TestView();
   ok(true, "Does not throw an exception");
 });
+*/
