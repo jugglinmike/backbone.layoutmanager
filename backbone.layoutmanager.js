@@ -506,7 +506,8 @@ var LayoutManager = Backbone.View.extend({
 
         // If there are multiple top level elements and `el: false` is used,
         // display a warning message and a stack trace.
-        if (manager.noel && root.$el.length > 1) {
+        if (manager.noel && root.$el
+          .filter(function(_, el) { return el.nodeType !== 3; }).length > 1) {
           // Do not display a warning while testing or if warning suppression
           // is enabled.
           if (_.isFunction(console.warn) && !options.suppressWarnings) {
